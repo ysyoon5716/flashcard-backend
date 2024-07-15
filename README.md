@@ -5,6 +5,13 @@
 
 
 ## 2. Run
+### 2.1. Write `.env`
+```
+MONGO_USERNAME=YOUR_MONGO_USERNAME
+MONGO_PASSWORD=YOUR_MONGO_PASSWORD
+```
+
+
 ```shell
 docker-compose up -d
 ```
