@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 mongo_client = pymongo.MongoClient(
-    "mongodb://192.168.0.3:12001", 
+    os.getenv("MONGO_URL"), 
     username=os.getenv("MONGO_USERNAME"),
     password=os.getenv("MONGO_PASSWORD"),
 )
@@ -39,11 +39,11 @@ def read_decks() -> List[Deck]:
     return decks
 
 
-@app.get('/decks/create')
-def create_deck(name: str):
+@app.post('/decks/create')
+def create_deck(deck: Deck):
+    deck.deck_id = str(uuid.uuid4())
     decks = mongo_client["flashcard"]["decks"]
-    deck_id = str(uuid.uuid4())
-    decks.insert_one({"deck_id": deck_id, "name": name})
+    decks.insert_one(deck.dict())
     return {"status": "ok"}
 
 
@@ -57,6 +57,13 @@ def delete_deck(deck_id: str):
     return {"status": "ok"}
 
 
+@app.post('/decks/update')
+def update_deck(deck: Deck):
+    decks = mongo_client["flashcard"]["decks"]
+    decks.update_one({"deck_id": deck.deck_id}, {"$set": {"name": deck.name}})
+    return {"status": "ok"}
+
+
 @app.get('/decks/{deck_id}')
 def read_deck(deck_id: str) -> List[Card]:
     cards = mongo_client["flashcard"]["cards"]
@@ -65,10 +72,10 @@ def read_deck(deck_id: str) -> List[Card]:
 
 
 @app.post('/cards/create')
-def create_card(deck_id: str, front: str, back: str):
+def create_card(card: Card):
     cards = mongo_client["flashcard"]["cards"]
-    card_id = str(uuid.uuid4())
-    cards.insert_one({"deck_id": deck_id, "card_id": card_id, "front": front, "back": back})
+    card.card_id = str(uuid.uuid4())
+    cards.insert_one(card.dict())
     return {"status": "ok"}
 
 
@@ -80,7 +87,7 @@ def delete_card(card_id: str):
 
 
 @app.post('/cards/update')
-def update_card(card_id: str, front: str, back: str):
+def update_card(card: Card):
     cards = mongo_client["flashcard"]["cards"]
-    cards.update_one({"card_id": card_id}, {"$set": {"front": front, "back": back}})
+    cards.update_one({"card_id": card.card_id}, {"$set": {"front": card.front, "back": card.back}})
     return {"status": "ok"}
