@@ -47,13 +47,13 @@ def create_deck(deck: Deck):
     return {"status": "ok"}
 
 
-@app.get('/decks/delete')
-def delete_deck(deck_id: str):
+@app.post('/decks/delete')
+def delete_deck(deck: Deck):
     decks = mongo_client["flashcard"]["decks"]
-    decks.delete_one({"deck_id": deck_id})
+    decks.delete_one({"deck_id": deck.deck_id})
 
     cards = mongo_client["flashcard"]["cards"]
-    cards.delete_many({"deck_id": deck_id})
+    cards.delete_many({"deck_id": deck.deck_id})
     return {"status": "ok"}
 
 
