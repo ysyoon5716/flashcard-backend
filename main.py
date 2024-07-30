@@ -4,7 +4,7 @@ import pymongo
 from typing import List
 from dotenv import load_dotenv
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from models import *
@@ -73,5 +73,8 @@ def update_card(id: str, card: Card) -> Card:
 @app.get('/card/random')
 def read_random_card() -> Card:
     cards = mongo_client["flashcard"]["cards"]
+    if cards.count_documents({}) == 0:
+        raise HTTPException(status_code=404, detail="No cards found")
+
     card = cards.aggregate([{"$sample": {"size": 1}}])
     return list(card)[0]
