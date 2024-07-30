@@ -40,11 +40,11 @@ def read_decks() -> List[Deck]:
 
 
 @app.post('/decks/create')
-def create_deck(deck: Deck):
+def create_deck(deck: Deck) -> Deck:
     deck.deck_id = str(uuid.uuid4())
     decks = mongo_client["flashcard"]["decks"]
     decks.insert_one(deck.dict())
-    return {"status": "ok"}
+    return deck
 
 
 @app.post('/decks/delete')
