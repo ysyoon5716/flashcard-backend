@@ -48,20 +48,20 @@ def create_deck(deck: Deck) -> Deck:
 
 
 @app.post('/decks/delete')
-def delete_deck(deck: Deck):
+def delete_deck(deck: Deck) -> None:
     decks = mongo_client["flashcard"]["decks"]
     decks.delete_one({"deck_id": deck.deck_id})
 
     cards = mongo_client["flashcard"]["cards"]
     cards.delete_many({"deck_id": deck.deck_id})
-    return {"status": "ok"}
+    return None
 
 
 @app.post('/decks/update')
-def update_deck(deck: Deck):
+def update_deck(deck: Deck) -> Deck:
     decks = mongo_client["flashcard"]["decks"]
     decks.update_one({"deck_id": deck.deck_id}, {"$set": {"name": deck.name}})
-    return {"status": "ok"}
+    return deck
 
 
 @app.get('/decks/{deck_id}')
@@ -72,22 +72,22 @@ def read_deck(deck_id: str) -> List[Card]:
 
 
 @app.post('/cards/create')
-def create_card(card: Card):
+def create_card(card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
     card.card_id = str(uuid.uuid4())
     cards.insert_one(card.dict())
-    return {"status": "ok"}
+    return card
 
 
 @app.get('/cards/delete')
-def delete_card(card_id: str):
+def delete_card(card_id: str) -> None:
     cards = mongo_client["flashcard"]["cards"]
     cards.delete_one({"card_id": card_id})
-    return {"status": "ok"}
+    return None
 
 
 @app.post('/cards/update')
-def update_card(card: Card):
+def update_card(card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
     cards.update_one({"card_id": card.card_id}, {"$set": {"front": card.front, "back": card.back}})
-    return {"status": "ok"}
+    return card
