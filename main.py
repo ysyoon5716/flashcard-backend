@@ -43,27 +43,27 @@ def read_cards() -> List[Card]:
 @app.post('/card')
 def create_card(card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
-    card.card_id = str(uuid.uuid4())
+    card.id = str(uuid.uuid4())
     cards.insert_one(card.dict())
     return card
 
 
-@app.get('/card/{card_id}')
-def read_card(card_id: str) -> Card:
+@app.get('/card/{id}')
+def read_card(id: str) -> Card:
     cards = mongo_client["flashcard"]["cards"]
-    card = cards.find_one({"card_id": card_id})
+    card = cards.find_one({"id": id})
     return card
 
 
-@app.delete('/card/{card_id}')
-def delete_card(card_id: str):
+@app.delete('/card/{id}')
+def delete_card(id: str):
     cards = mongo_client["flashcard"]["cards"]
-    cards.delete_one({"card_id": card_id})
+    cards.delete_one({"id": id})
     return {"message": "Card deleted"}
 
 
-@app.put('/card/{card_id}')
-def update_card(card_id: str, card: Card) -> Card:
+@app.put('/card/{id}')
+def update_card(id: str, card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
-    cards.update_one({"card_id": card_id}, {"$set": card.dict()})
+    cards.update_one({"id": id}, {"$set": card.dict()})
     return card
