@@ -64,6 +64,7 @@ def delete_card(id: str):
 
 @app.put('/card/{id}')
 def update_card(id: str, card: Card) -> Card:
+    card.id = id
     cards = mongo_client["flashcard"]["cards"]
     cards.update_one({"id": id}, {"$set": card.dict()})
     return card
