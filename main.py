@@ -68,3 +68,10 @@ def update_card(id: str, card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
     cards.update_one({"id": id}, {"$set": card.dict()})
     return card
+
+
+@app.get('/card/random')
+def read_random_card() -> Card:
+    cards = mongo_client["flashcard"]["cards"]
+    card = cards.aggregate([{"$sample": {"size": 1}}])
+    return list(card)[0]
