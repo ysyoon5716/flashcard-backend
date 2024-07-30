@@ -32,46 +32,15 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/decks")
-def read_decks() -> List[Deck]:
-    decks = mongo_client["flashcard"]["decks"]
-    decks = [Deck(**deck) for deck in decks.find()]
-    return decks
 
-
-@app.post('/decks/create')
-def create_deck(deck: Deck) -> Deck:
-    deck.deck_id = str(uuid.uuid4())
-    decks = mongo_client["flashcard"]["decks"]
-    decks.insert_one(deck.dict())
-    return deck
-
-
-@app.post('/decks/delete')
-def delete_deck(deck: Deck) -> None:
-    decks = mongo_client["flashcard"]["decks"]
-    decks.delete_one({"deck_id": deck.deck_id})
-
+@app.get('/cards')
+def read_cards() -> List[Card]:
     cards = mongo_client["flashcard"]["cards"]
-    cards.delete_many({"deck_id": deck.deck_id})
-    return None
-
-
-@app.post('/decks/update')
-def update_deck(deck: Deck) -> Deck:
-    decks = mongo_client["flashcard"]["decks"]
-    decks.update_one({"deck_id": deck.deck_id}, {"$set": {"name": deck.name}})
-    return deck
-
-
-@app.get('/decks/{deck_id}')
-def read_deck(deck_id: str) -> List[Card]:
-    cards = mongo_client["flashcard"]["cards"]
-    cards = [Card(**card) for card in cards.find({"deck_id": deck_id})]
+    cards = list(cards.find())
     return cards
 
 
-@app.post('/cards/create')
+@app.post('/card')
 def create_card(card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
     card.card_id = str(uuid.uuid4())
@@ -79,15 +48,22 @@ def create_card(card: Card) -> Card:
     return card
 
 
-@app.get('/cards/delete')
-def delete_card(card_id: str) -> None:
+@app.get('/card/{card_id}')
+def read_card(card_id: str) -> Card:
+    cards = mongo_client["flashcard"]["cards"]
+    card = cards.find_one({"card_id": card_id})
+    return card
+
+
+@app.delete('/card/{card_id}')
+def delete_card(card_id: str):
     cards = mongo_client["flashcard"]["cards"]
     cards.delete_one({"card_id": card_id})
-    return None
+    return {"message": "Card deleted"}
 
 
-@app.post('/cards/update')
-def update_card(card: Card) -> Card:
+@app.put('/card/{card_id}')
+def update_card(card_id: str, card: Card) -> Card:
     cards = mongo_client["flashcard"]["cards"]
-    cards.update_one({"card_id": card.card_id}, {"$set": {"front": card.front, "back": card.back}})
+    cards.update_one({"card_id": card_id}, {"$set": card.dict()})
     return card
